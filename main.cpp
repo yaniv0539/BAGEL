@@ -19,6 +19,11 @@ void run_tests();
 
 int main()
 {
+	Mask m2 = MaskBuilder()
+		.add<Position>()
+		.add<Direction>()
+		.build();
+
 	ent_type e = World::createEntity();
 	World::addComponents(e,
 		Position{1,2},

@@ -1,7 +1,6 @@
 // Copyright (C) 2025 Moshe Sulamy
 
 #pragma once
-#include <atomic>
 #include <cstdlib>
 #include <cstdint>
 #include <cstring>
@@ -265,5 +264,26 @@ namespace bagel
 		static inline ent_type								_maxId{-1};
 		static inline Bag<Mask,		Params.InitialEntities> _masks;
 		static inline Bag<ent_type,	Params.IdBagSize>		_ids;
+	};
+
+	class Entity
+	{
+
+	};
+
+	class MaskBuilder
+	{
+	public:
+		static MaskBuilder create() { return MaskBuilder{}; }
+
+		template <class T>
+		MaskBuilder& add() {
+			m.set(Component<T>::Bit);
+			return *this;
+		}
+
+		Mask build() const { return m; }
+	private:
+		Mask m;
 	};
 }
