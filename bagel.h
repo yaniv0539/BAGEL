@@ -31,7 +31,7 @@ namespace bagel
 #endif
 
 	using id_type = int;
-	using ent_type = struct { id_type id; };
+	struct ent_type { id_type id; };
 	using size_type = int;
 	using index_type = int;
 	using mask_type =
@@ -167,13 +167,13 @@ namespace bagel
 		using bit_type = mask_type;
 		static constexpr bit_type bit(index_type idx) { return 1<<idx; }
 
-		void set(bit_type b) { _mask |= b; }
+		void set(const bit_type b) { _mask |= b; }
 
-		void clear(bit_type b) { _mask &= ~b; }
+		void clear(const bit_type b) { _mask &= ~b; }
 		void clear() { _mask = 0; }
 
-		bool test(bit_type b) const { return _mask & b; }
-		bool test(SingleMask m) const { return (_mask & m._mask) == m._mask; }
+		bool test(const bit_type b) const { return _mask & b; }
+		bool test(const SingleMask m) const { return (_mask & m._mask) == m._mask; }
 	private:
 		mask_type	_mask{0};
 	};
@@ -188,13 +188,13 @@ namespace bagel
 			return {idx/BitsetWidth, static_cast<mask_type>(1<<(idx%BitsetWidth))};
 		}
 
-		void set(bit_type b) { _masks[b.index] |= b.mask; }
+		void set(const bit_type& b) { _masks[b.index] |= b.mask; }
 
-		void clear(bit_type b) { _masks[b.index] &= ~b.mask; }
+		void clear(const bit_type& b) { _masks[b.index] &= ~b.mask; }
 		void clear() { memset(_masks, 0, sizeof(_masks)); }
 
-		bool test(bit_type b) const { return _masks[b.index] & b.mask; }
-		bool test(MultiMask m) const {
+		bool test(const bit_type& b) const { return _masks[b.index] & b.mask; }
+		bool test(const MultiMask& m) const {
 			for (index_type i = 0; i < Size; ++i)
 				if ((_masks[i] & m._masks[i]) != m._masks[i])
 					return false;
@@ -269,20 +269,44 @@ namespace bagel
 
 	class Entity
 	{
+	public:
+		Entity(ent_type e) : _ent(e) {}
+		ent_type entity() const { return _ent; }
 
+		static Entity create() { return World::createEntity(); }
+		void destroy() const { World::destroyEntity(_ent); }
+
+		const Mask& mask() const { return World::mask(_ent); }
+
+		template <class T> T& get() const { return World::getComponent<T>(_ent); }
+		template <class T> void add(const T& t) const {
+			return World::addComponent<T>(_ent, t);
+		}
+		template <class T> void del() const {
+			return World::delComponent<T>(_ent);
+		}
+
+		template <class T, class ...Ts> void addAll(const T& t, const Ts&... ts) const {
+			World::addComponents(_ent, t, ts...);
+		}
+		template <class T, class ...Ts> void delAll() const {
+			World::delComponents<T,Ts...>(_ent);
+		}
+
+		template <class T> bool has() const { return mask().test(Component<T>::Bit); }
+		bool test(const Mask& m) const { return mask().test(m); }
+	private:
+		ent_type _ent;
 	};
 
 	class MaskBuilder
 	{
 	public:
-		static MaskBuilder create() { return MaskBuilder{}; }
-
 		template <class T>
-		MaskBuilder& add() {
+		MaskBuilder& set() {
 			m.set(Component<T>::Bit);
 			return *this;
 		}
-
 		Mask build() const { return m; }
 	private:
 		Mask m;
