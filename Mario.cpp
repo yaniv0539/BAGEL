@@ -8,36 +8,5 @@
 
 namespace mario
 {
-    Mario::Mario()
-    {
-        if (!SDL_Init(SDL_INIT_VIDEO)) {
-            std::cout << SDL_GetError() << std::endl;
-            return;
-        }
-
-        if (!SDL_CreateWindowAndRenderer(
-            "Mario", 800,600, 0, &win, &ren)) {
-            std::cout << SDL_GetError() << std::endl;
-            return;
-        }
-    }
-
-    SDL_Texture* Mario::getTexture(char* path)
-    {
-        SDL_Surface *surf = IMG_Load(path);
-        if (surf == nullptr) {
-            std::cout << SDL_GetError() << std::endl;
-            return nullptr;
-        }
-
-        SDL_Texture* tex = SDL_CreateTextureFromSurface(ren, surf);
-        if (tex == nullptr) {
-            std::cout << SDL_GetError() << std::endl;
-            return nullptr;
-        }
-        return tex;
-    }
-
-
 
 }
