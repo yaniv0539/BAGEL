@@ -1,9 +1,9 @@
-#include "Pong.h"
+#include "character.h"
+#include "SDL3/SDL.h"
+#include "SDL3_image/SDL_image.h"
+#include <iostream>
 
-/// doc of main
-int main()
-{
-	Pong p;
-	p.run();
-	return 0;
+int main() {
+    character::Mario mk;
+    mk.run();
 }
